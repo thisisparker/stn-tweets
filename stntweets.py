@@ -83,10 +83,10 @@ def main():
 
                 site_tweets.append("🤖 " + new_site['name'] + " has improved its grade on the @SecureTheNews leaderboard from " + old_site['grade'] + " to " + new_site['grade'] + ". https://securethe.news/sites/")
 
-#            if (available_over_https(new_site)
-#                and not available_over_https(old_site)):
+            if (available_over_https(new_site)
+                and not available_over_https(old_site)):
 
-#                site_tweets.append("🤖 " + new_site['name'] + " is now available over HTTPS! Next step: turn it on by default. https://securethe.news/sites")
+                site_tweets.append("🤖 " + new_site['name'] + " is now available over HTTPS! Next step: turn it on by default. https://securethe.news/sites")
 
             if (new_site['defaults_to_https']
                 and not old_site['defaults_to_https']):
