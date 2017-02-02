@@ -4,7 +4,7 @@
 # differences.
 
 import random, json, yaml, os, time, requests
-from twython import Twython
+from twython import Twython, TwythonError
 from bs4 import BeautifulSoup
 
 fullpath = os.path.dirname(os.path.realpath(__file__))
@@ -111,7 +111,8 @@ def main():
 # The tweeting loop.
 
         if len(tweets) == 0:
-            twitter.send_direct_message(screen_name='xor', text="I would've sent a message, but nothing changed!")
+            twitter.send_direct_message(screen_name='xor',
+                text="I would've sent a message, but nothing changed!")
 
         to_sleep = False
 
@@ -125,11 +126,19 @@ def main():
             reply_to = 'null'
 
             for item in site:
+
                 if reply_to != 'null':
                     time.sleep(30)
-                response = twitter.update_status(status=item,
-                    in_reply_to_status_id=reply_to)
-                reply_to = response['id_str']
+
+                try:
+                    response = twitter.update_status(status=item,
+                        in_reply_to_status_id=reply_to)
+                    reply_to = response['id_str']
+                except TwythonError as err:
+                    twitter.send_direct_message(screen_name='xor',
+                    text="I tried to tweet " + item + 
+                    " but got the error " + str(err))
+
 
         write_results(new_results, results_path)
 
