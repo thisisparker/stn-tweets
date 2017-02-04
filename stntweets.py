@@ -155,11 +155,9 @@ def main():
             twitter.send_direct_message(screen_name=botmaster,
                 text="I would've sent a message, but nothing changed!")
 
-#        tweet_results(tweets)
+        tweet_results(tweets)
 
-        print(tweets)
-
-#        write_results(new_results, results_path)
+        write_results(new_results, results_path)
 
     else:
         old_results = new_results
