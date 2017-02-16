@@ -67,11 +67,10 @@ def compare_results(old_site, new_site):
 
     return site_tweets
 
-def tweet_results(tweets):
+def tweet_results(tweets, twitter):
     to_sleep = False
 
     for site in tweets:
-
         if to_sleep:
             time.sleep(1800)
         else:
@@ -80,7 +79,6 @@ def tweet_results(tweets):
         reply_to = 'null'
 
         for item in site:
-
             if reply_to != 'null':
                 time.sleep(30)
 
@@ -155,7 +153,7 @@ def main():
             twitter.send_direct_message(screen_name=botmaster,
                 text="I would've sent a message, but nothing changed!")
 
-        tweet_results(tweets)
+        tweet_results(tweets, twitter)
 
         write_results(new_results, results_path)
 
