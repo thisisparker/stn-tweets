@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
-# Scrapes the current results of the Secure The News scorecard,
-# compares them to the previous scrape, and tweets about the
+# Grabs the current results of the Secure The News scorecard API,
+# compares them to the previous results, and tweets about the
 # differences.
 
 import random, json, yaml, os, time, requests
 from twython import Twython, TwythonError
-from bs4 import BeautifulSoup
 
 fullpath = os.path.dirname(os.path.realpath(__file__))
-CONFIG = os.path.join(fullpath,"config.yaml")
+CONFIG = os.path.join(fullpath, "config.yaml")
 
 def get_config():
     with open(CONFIG,'r') as c:
@@ -24,7 +23,7 @@ def get_twitter_instance(config):
 
 def write_results(results,path):
     with open(path,"w") as f:
-        json.dump(results, f)
+        json.dump(results, f, indent = 4)
 
 def available_over_https(site):
     if (site['valid_https']
@@ -86,6 +85,7 @@ def tweet_results(tweets, twitter):
                 response = twitter.update_status(status=item,
                     in_reply_to_status_id=reply_to)
                 reply_to = response['id_str']
+                print(item)
 
             except TwythonError as err:
                 twitter.send_direct_message(screen_name=botmaster,
@@ -97,30 +97,23 @@ def main():
     twitter = get_twitter_instance(config)
     botmaster = config['botmaster']
 
-    p = requests.get("https://securethe.news/sites")
-    soup = BeautifulSoup(p.text, "html.parser")
-    script = soup.find("script")
+    results = requests.get("https://securethe.news/api/v1/sites/?limit=1000").json()['results']
 
     tweets = list()
     new_results = list()
 
-# `results` is a pretty raw scrape from Secure The News data.
-# Here we repackage it into a list of dictionaries called
-# `new_results`. This structure should allow the bot to
-# track more things in the future.
-
-    results = json.loads(script.text.strip('\n var STNsiteData =;'))
-
     for site in results:
         new_results.append({'name':site['name'],
-            'grade':site['grade']['grade'],
-            'score':site['score'],
-            'valid_https':site['valid_https'],
-            'downgrades_https':site['downgrades_https'],
-            'defaults_to_https':site['defaults_to_https'],
-            'hsts':site['hsts'],
-            'hsts_preloaded':site['hsts_preloaded'],
-            'url':'https://securethe.news' + site['absolute_url']})
+            'grade':site['latest_scan']['grade'],
+            'score':site['latest_scan']['score'],
+            'valid_https':site['latest_scan']['valid_https'],
+            'downgrades_https':
+                site['latest_scan']['downgrades_https'],
+            'defaults_to_https':
+                site['latest_scan']['defaults_to_https'],
+            'hsts':site['latest_scan']['hsts'],
+            'hsts_preloaded':site['latest_scan']['hsts_preloaded'],
+            'url':'https://securethe.news/sites/' + site['slug']})
 
 # Open existing results to compare to the new ones, if they exist.
 # If not, save the new ones and we'll compare later.
@@ -137,7 +130,7 @@ def main():
 
         for new_site in new_results:
 
-            old_site = next((s for s in old_results if s['name'] == new_site['name']),None)
+            old_site = next((s for s in old_results if s['name'] == new_site['name']), None)
 
             site_tweets = compare_results(old_site, new_site)
 
