@@ -85,7 +85,6 @@ def tweet_results(tweets, twitter):
                 response = twitter.update_status(status=item,
                     in_reply_to_status_id=reply_to)
                 reply_to = response['id_str']
-                print(item)
 
             except TwythonError as err:
                 twitter.send_direct_message(screen_name=botmaster,
