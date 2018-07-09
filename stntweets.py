@@ -120,6 +120,7 @@ def main():
     results_path = os.path.join(fullpath, "old_results.json")
 
     if os.path.exists(results_path):
+        best_results = []
         with open(results_path,"r") as f:
             old_results = json.load(f)
 
@@ -138,6 +139,9 @@ def main():
 
             if len(site_tweets) > 0:
                 tweets.append(site_tweets)
+                best_results.append(new_site)
+            else:
+                best_results.append(old_site)
 
 # The tweeting loop.
 
@@ -147,7 +151,7 @@ def main():
 
         tweet_results(tweets, twitter)
 
-        write_results(new_results, results_path)
+        write_results(best_results, results_path)
 
     else:
         old_results = new_results
