@@ -87,9 +87,11 @@ def tweet_results(tweets, twitter):
                 reply_to = response['id_str']
 
             except TwythonError as err:
-                twitter.send_direct_message(screen_name=botmaster,
-                    text="I tried to tweet " + item + 
-                    " but got the error " + str(err))
+                # see note below, this API has been sunsetted
+#                twitter.send_direct_message(screen_name=botmaster,
+#                    text="I tried to tweet " + item + 
+#                    " but got the error " + str(err))
+                pass
 
 def main():
     config = get_config()
@@ -145,9 +147,11 @@ def main():
 
 # The tweeting loop.
 
-        if len(tweets) == 0:
-            twitter.send_direct_message(screen_name=botmaster,
-                text="I would've sent a message, but nothing changed!")
+# This part was cool, but won't work after 8/16/18 due to Twitter sunsetting
+# this API. Pour one out.
+#        if len(tweets) == 0:
+#            twitter.send_direct_message(screen_name=botmaster,
+#                text="I would've sent a message, but nothing changed!")
 
         tweet_results(tweets, twitter)
 
