@@ -64,6 +64,9 @@ def compare_results(old_site, new_site):
 
         site_tweets.append("🤖 " + new_site['name'] + " is now on the HSTS preload list for major browsers, protecting user privacy. Bravo. https://securethe.news/sites")
 
+    if (new_site.get('onion_available', False) and not old_site.get('onion_available', False)):
+        site_tweets.append("🤖 " + new_site['name'] + " provides a @torproject onion service to protect reader privacy and enable censorship circumvention! https://securethe.news/sites")
+
     return site_tweets
 
 def tweet_results(tweets, twitter):
@@ -114,6 +117,7 @@ def main():
                 site['latest_scan']['defaults_to_https'],
             'hsts':site['latest_scan']['hsts'],
             'hsts_preloaded':site['latest_scan']['hsts_preloaded'],
+            'onion_available':site['latest_scan'].get('onion_available', False),
             'url':'https://securethe.news/sites/' + site['slug']})
 
 # Open existing results to compare to the new ones, if they exist.
