@@ -6,6 +6,8 @@
 import random, json, yaml, os, time, requests
 from twython import Twython, TwythonError
 
+from typing import Optional
+
 fullpath = os.path.dirname(os.path.realpath(__file__))
 CONFIG = os.path.join(fullpath, "config.yaml")
 
@@ -32,40 +34,52 @@ def available_over_https(site):
     else:
         return False
 
+
+def get_site_name(site_name: str, twitter_handle: Optional[str]) -> str:
+    """Returns a string for the site name with the twitter handle in parens
+    if available"""
+
+    if twitter_handle:
+        return "{} ({})".format(site_name, twitter_handle)
+    else:
+        return site_name
+
+
 def compare_results(old_site, new_site):
 
     site_tweets = []
+    site_name = get_site_name(new_site['name'], new_site['twitter_handle'])
 
     if old_site == None:
-         site_tweets.append("🤖 We're tracking a new site on @SecureTheNews: " + new_site['name'] + " has a grade of " + new_site['grade'] + ". " + new_site['url'])
+         site_tweets.append("🤖 We're tracking a new site on @SecureTheNews: " + site_name + " has a grade of " + new_site['grade'] + ". " + new_site['url'])
          return site_tweets
 
     if (new_site['grade'] != old_site['grade'] and 
         new_site['score'] > old_site['score']):
 
-         site_tweets.append("🤖 " + new_site['name'] + " has improved its grade on the @SecureTheNews leaderboard from " + old_site['grade'] + " to " + new_site['grade'] + ". " + new_site['url'])
+         site_tweets.append("🤖 " + site_name + " has improved its grade on the @SecureTheNews leaderboard from " + old_site['grade'] + " to " + new_site['grade'] + ". " + new_site['url'])
 
     if (new_site['defaults_to_https']
         and not old_site['defaults_to_https']):
 
-        site_tweets.append("🤖 Great news: " + new_site['name'] + " is now using HTTPS by default! Huge win for reader privacy and security. https://securethe.news/sites")
+        site_tweets.append("🤖 Great news: " + site_name + " is now using HTTPS by default! Huge win for reader privacy and security. https://securethe.news/sites")
 
     elif (available_over_https(new_site)
         and not available_over_https(old_site)):
 
-        site_tweets.append("🤖 " + new_site['name'] + " is now available over HTTPS! Next step: turn it on by default. https://securethe.news/sites")
+        site_tweets.append("🤖 " + site_name + " is now available over HTTPS! Next step: turn it on by default. https://securethe.news/sites")
 
     if (new_site['hsts'] and not old_site['hsts']):
 
-        site_tweets.append("🤖 " + new_site['name'] + " is now using HSTS headers. This means browsers will connect to it more securely. Yes! https://securethe.news/sites")
+        site_tweets.append("🤖 " + site_name + " is now using HSTS headers. This means browsers will connect to it more securely. Yes! https://securethe.news/sites")
 
     if (new_site['hsts_preloaded'] 
         and not old_site['hsts_preloaded']):
 
-        site_tweets.append("🤖 " + new_site['name'] + " is now on the HSTS preload list for major browsers, protecting user privacy. Bravo. https://securethe.news/sites")
+        site_tweets.append("🤖 " + site_name + " is now on the HSTS preload list for major browsers, protecting user privacy. Bravo. https://securethe.news/sites")
 
     if (new_site.get('onion_available', False) and not old_site.get('onion_available', False)):
-        site_tweets.append("🤖 " + new_site['name'] + " provides a @torproject onion service to protect reader privacy and enable censorship circumvention! https://securethe.news/sites")
+        site_tweets.append("🤖 " + site_name + " provides a @torproject onion service to protect reader privacy and enable censorship circumvention! https://securethe.news/sites")
 
     return site_tweets
 
@@ -108,6 +122,7 @@ def main():
 
     for site in results:
         new_results.append({'name':site['name'],
+            'twitter_handle':site.get('twitter_handle', None),
             'grade':site['latest_scan']['grade'],
             'score':site['latest_scan']['score'],
             'valid_https':site['latest_scan']['valid_https'],
