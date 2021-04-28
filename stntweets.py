@@ -132,7 +132,7 @@ def main():
                 site['latest_scan']['defaults_to_https'],
             'hsts':site['latest_scan']['hsts'],
             'hsts_preloaded':site['latest_scan']['hsts_preloaded'],
-            'onion_available':site['latest_scan'].get('onion_available', False),
+            'onion_available':site['latest_scan'].get('onion_location_header', False),
             'url':'https://securethe.news/sites/' + site['slug']})
 
 # Open existing results to compare to the new ones, if they exist.
